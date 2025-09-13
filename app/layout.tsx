@@ -1,10 +1,11 @@
+// app/layout.tsx
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Next.js API-first (SSR) • Demo',
-  description: 'Pages fetch API directly; Vercel-ready'
+  description: 'Pages fetch API directly; Vercel-ready',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/users">Users</Link>
             <span style={{ margin: '0 8px' }}>|</span>
             <Link href="/posts">Posts</Link>
+            <span style={{ margin: '0 8px' }}>|</span>
+            <Link href="/profile">Profile</Link> {/* ปุ่มใหม่ */}
           </nav>
         </header>
         <main style={{ padding: 16 }}>{children}</main>

@@ -1,11 +1,16 @@
+// lib/server-fetch.ts
 import { headers } from 'next/headers';
 import { getBaseUrl } from './base-url';
 
 /**
- * Server-side fetch that forwards auth/protection cookies & headers
- * so requests can pass Vercel Password Protection or custom auth.
+ * Server-side fetch ที่ forward headers/cookies
+ * รองรับ Vercel Password Protection หรือ custom auth.
+ * คืนค่า JSON อัตโนมัติ (ใช้ generic T)
  */
-export async function serverFetch(path: string, init?: RequestInit) {
+export async function serverFetch<T = unknown>(
+  path: string,
+  init?: RequestInit
+): Promise<T> {
   const h = headers();
   const cookie = h.get('cookie') ?? '';
   const bypass = h.get('x-vercel-protection-bypass');
@@ -23,5 +28,10 @@ export async function serverFetch(path: string, init?: RequestInit) {
     headers: hdrs,
     cache: 'no-store',
   });
-  return res;
+
+  if (!res.ok) {
+    throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+  }
+
+  return res.json() as Promise<T>;
 }
