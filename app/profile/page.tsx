@@ -1,33 +1,34 @@
 // app/profile/page.tsx
+import { serverFetch } from '@/lib/server-fetch';
 import Image from 'next/image';
+
+type User = {
+  id: number;
+  name: string;
+  email?: string;
+};
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
-  const people = [
-    {
-      id: 1,
-      name: 'Mr. Patiphat Jeenchum',
-      email: 'patiphat.je@mail.wu.ac.th',
-      role: 'Frontend Developer',
-      bio: 'เชี่ยวชาญ React, Next.js และการทำ SSR บน Vercel',
-      avatar: 'https://i.pravatar.cc/160?img=12',
-    },
-    {
-      id: 2,
-      name: 'Pavadon Sangthong',
-      email: 'pavadon.sa@mail.wu.ac.th',
-      role: 'Backend Developer',
-      bio: 'ถนัด Node.js, SQL และออกแบบระบบ API-first',
-      avatar: 'https://i.pravatar.cc/160?img=32',
-    },
-  ];
+  const users = await serverFetch<User[]>('/api/users');
+
+  // เลือก 2 คนแรก และเพิ่มข้อมูลเสริม
+  const two = users.slice(0, 2).map((u, idx) => ({
+    ...u,
+    role: idx === 0 ? 'Frontend Developer' : 'Backend Developer',
+    bio:
+      idx === 0
+        ? 'ชอบงาน UI/UX, React, และการทำ SSR บน Vercel'
+        : 'ถนัด Node.js/SQL ออกแบบ API-first และปรับจูน Query',
+    avatar: `https://i.pravatar.cc/160?img=${idx === 0 ? 12 : 32}`,
+  }));
 
   return (
     <section>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Profile</h1>
       <p style={{ color: '#555', marginBottom: 16 }}>
-        ข้อมูลโปรไฟล์ของสมาชิก 2 คน
+        ตัวอย่างหน้าโปรไฟล์ (SSR) ที่ดึงข้อมูลจาก <code>/api/users</code>
       </p>
 
       <div
@@ -37,9 +38,9 @@ export default async function ProfilePage() {
           gap: 16,
         }}
       >
-        {people.map((p) => (
+        {two.map((u) => (
           <article
-            key={p.id}
+            key={u.id}
             style={{
               border: '1px solid #eee',
               borderRadius: 8,
@@ -49,19 +50,21 @@ export default async function ProfilePage() {
           >
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <Image
-                src={p.avatar}
-                alt={p.name}
+                src={u.avatar}
+                alt={u.name}
                 width={64}
                 height={64}
                 style={{ borderRadius: '50%', border: '1px solid #ddd' }}
               />
               <div>
-                <div style={{ fontWeight: 700 }}>{p.name}</div>
-                <div style={{ fontSize: 12, color: '#666' }}>{p.role}</div>
-                <div style={{ fontSize: 12, color: '#666' }}>{p.email}</div>
+                <div style={{ fontWeight: 700 }}>{u.name}</div>
+                <div style={{ fontSize: 12, color: '#666' }}>{u.role}</div>
+                {u.email && (
+                  <div style={{ fontSize: 12, color: '#666' }}>{u.email}</div>
+                )}
               </div>
             </div>
-            <p style={{ marginTop: 12, lineHeight: 1.6 }}>{p.bio}</p>
+            <p style={{ marginTop: 12, lineHeight: 1.6 }}>{u.bio}</p>
           </article>
         ))}
       </div>
